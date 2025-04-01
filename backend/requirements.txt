@@ -1,0 +1,21 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+
+# File Processing
+PyPDF2
+python-docx
+python-multipart # For file uploads
+
+# AI & Search
+google-generativeai # Direct Gemini access
+langchain           # Core LangChain
+langchain-google-genai # Langchain Gemini integration
+tavily-python       # Tavily Search API client
+
+# Pydantic for models
+pydantic
+pydantic-settings # For config loading
+
+# Misc
+requests # Might be used by tavily or langchain indirectly, keep for now
