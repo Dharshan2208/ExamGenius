@@ -10,7 +10,7 @@ from app.models.study_resource import StudyResource
 from app.services.tavily_service import TavilyService, get_tavily_service
 
 # LangChain components
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import StrOutputParser, PydanticOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -24,13 +24,13 @@ class LangChainService:
     def __init__(self, tavily_service: TavilyService):
         self.tavily_service = tavily_service
         try:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                google_api_key=settings.GEMINI_API_KEY,
+            self.llm = ChatGroq(
+                model="llama3-70b-8192",
+                api_key=settings.GROQ_API_KEY,
                 temperature=0.6,
-                convert_system_message_to_human=True
+                max_tokens=4000
             )
-            logger.info("LangChain LLM (ChatGoogleGenerativeAI) initialized successfully.")
+            logger.info("LangChain LLM (ChatGroq) initialized successfully.")
         except Exception as e:
             logger.error(f"Error initializing LangChain LLM: {e}")
             self.llm = None

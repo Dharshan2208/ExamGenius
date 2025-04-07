@@ -8,7 +8,7 @@ from app.models.resource import SearchResultItem, RecommendedResource, TopicReso
 from app.services.tavily_service import TavilyService, get_tavily_service
 
 # LangChain components
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.exceptions import OutputParserException
@@ -21,13 +21,13 @@ class ResourceCurationService:
     def __init__(self, tavily_service: TavilyService):
         self.tavily_service = tavily_service
         try:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                google_api_key=settings.GEMINI_API_KEY,
+            self.llm = ChatGroq(
+                model="deepseek-r1-distill-llama-70b",
+                api_key=settings.GROQ_API_KEY,
                 temperature=0.5, # Slightly lower temp for more focused curation
-                convert_system_message_to_human=True
+                max_tokens=4000
             )
-            logger.info("ResourceCurationService: LLM (ChatGoogleGenerativeAI) initialized successfully.")
+            logger.info("ResourceCurationService: LLM (ChatGroq) initialized successfully.")
         except Exception as e:
             logger.error(f"Error initializing LLM for ResourceCurationService: {e}")
             self.llm = None

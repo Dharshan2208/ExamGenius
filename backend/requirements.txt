@@ -11,6 +11,8 @@ python-multipart # For file uploads
 google-generativeai # Direct Gemini access
 langchain           # Core LangChain
 langchain-google-genai # Langchain Gemini integration
+langchain-groq      # Langchain Groq integration
+groq                # Direct Groq access
 tavily-python       # Tavily Search API client
 
 # Pydantic for models

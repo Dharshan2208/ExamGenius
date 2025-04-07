@@ -1,5 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from app.services.gemini_service import analyze_syllabus
+from app.services.groq_service import analyze_syllabus
 from app.utils.file_processing import extract_text_from_file
 from app.models.syllabus import SyllabusAnalysisResponse
 
@@ -25,8 +25,8 @@ async def upload_and_analyze_syllabus(
         text_content = await extract_text_from_file(file)
         print(f"Text extracted successfully (length: {len(text_content)} chars).")
 
-        # Analyze syllabus using Gemini API
-        print("Analyzing syllabus with Gemini...")
+        # Analyze syllabus using Groq API
+        print("Analyzing syllabus with Groq...")
         analysis_result = await analyze_syllabus(text_content)
         print("Analysis complete.")
 

@@ -11,8 +11,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "ExamGenius API"
     API_V1_STR: str = "/api"
 
-    GEMINI_API_KEY: str
-    TAVILY_API_KEY: str
+    GEMINI_API_KEY: str = ""
+    TAVILY_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
 
     # Optional: Add defaults or specific settings
     # DEFAULT_MODEL: str = "gemini-1.5-flash"
