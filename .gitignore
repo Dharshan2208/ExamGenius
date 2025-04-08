@@ -1,5 +1,5 @@
 # Logs
-ExamGenius\backend\.env
+backend\.env
 logs
 *.log
 npm-debug.log*

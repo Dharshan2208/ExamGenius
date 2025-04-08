@@ -31,15 +31,15 @@ def clean_json_response(text: str) -> str:
             text = text[first_line_end:].strip()
         else:
             text = text[3:].strip()
-    
+
     # Handle cases with explicit ```json format
     if text.startswith("```json"):
         text = text[7:].strip()
-    
+
     # Handle cases where the response ends with triple backticks
     if text.endswith("```"):
         text = text[:-3].strip()
-    
+
     # Handle any trailing or leading whitespace
     return text.strip()
 
@@ -187,7 +187,7 @@ Syllabus content:
         # Use Groq's chat completion API
         response = await asyncio.to_thread(
             client.chat.completions.create,
-            model="llama3-8b-8192",  # Using more stable Llama 3 8B model
+            model="llama-3.3-70b-versatile",  # Using more stable Llama 3 8B model
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that outputs only valid JSON without markdown formatting."},
                 {"role": "user", "content": prompt}
@@ -199,66 +199,66 @@ Syllabus content:
 
         logger.info("Received response from Groq API.")
         raw_json = clean_json_response(response.choices[0].message.content)
-        
+
         # Log the cleaned response for debugging
         logger.info(f"Cleaned response: {raw_json[:100]}...")
-        
+
         try:
             # Try to parse the JSON regardless of format checks
             parsed_data = json.loads(raw_json)
-            
+
             # Validate the parsed data has the expected structure
             if 'topics' not in parsed_data:
                 logger.error(f"Missing 'topics' key in response: {raw_json[:200]}...")
                 raise ValueError("AI model returned an incomplete response without topics.")
-                
+
             raw_topics = parsed_data.get('topics', [])
-            
+
             if not raw_topics:
                 logger.warning("No topics extracted from syllabus by Groq.")
                 return SyllabusAnalysisResponse(topics=[], total_study_hours=0, priority_topics=[])
-                
+
             # Process topics recursively
             logger.info("Processing extracted topics...")
             validated_topics, total_hours, priority_topics = await _recursive_topic_processor(raw_topics)
             logger.info(f"Processed {len(validated_topics)} top-level topics. Total hours: {total_hours}")
-            
+
             return SyllabusAnalysisResponse(
                 topics=validated_topics,
                 total_study_hours=total_hours if total_hours > 0 else None,
                 priority_topics=list({topic.name: topic for topic in priority_topics}.values()) # Deduplicate priority by name
             )
-            
+
         except json.JSONDecodeError as e:
             # If JSON parsing fails, try to extract JSON from the response
             logger.error(f"Error decoding JSON: {e}. Attempting to extract JSON manually...")
-            
+
             # Try to find JSON object between curly braces
             start_idx = raw_json.find('{')
             end_idx = raw_json.rfind('}')
-            
+
             if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
                 extracted_json = raw_json[start_idx:end_idx+1]
                 logger.info(f"Manually extracted JSON: {extracted_json[:100]}...")
-                
+
                 try:
                     parsed_data = json.loads(extracted_json)
-                    
+
                     if 'topics' not in parsed_data:
                         logger.error("Missing 'topics' key in extracted JSON.")
                         raise ValueError("AI model returned an incomplete response without topics.")
-                        
+
                     raw_topics = parsed_data.get('topics', [])
-                    
+
                     if not raw_topics:
                         logger.warning("No topics extracted from syllabus by Groq.")
                         return SyllabusAnalysisResponse(topics=[], total_study_hours=0, priority_topics=[])
-                        
+
                     # Process topics recursively
                     logger.info("Processing extracted topics...")
                     validated_topics, total_hours, priority_topics = await _recursive_topic_processor(raw_topics)
                     logger.info(f"Processed {len(validated_topics)} top-level topics. Total hours: {total_hours}")
-                    
+
                     return SyllabusAnalysisResponse(
                         topics=validated_topics,
                         total_study_hours=total_hours if total_hours > 0 else None,
@@ -266,7 +266,7 @@ Syllabus content:
                     )
                 except json.JSONDecodeError:
                     logger.error("Failed to parse manually extracted JSON.")
-                    
+
             # If all attempts fail, raise the original error
             raise ValueError("Failed to parse AI model response. The response format was not valid JSON.") from e
 
