@@ -19,37 +19,55 @@ const API_BASE_URL =
 export const uploadSyllabus = async (
   file: File
 ): Promise<SyllabusAnalysisResponse> => {
+  console.log('uploadSyllabus called with file:', file.name, 'size:', file.size, 'type:', file.type);
+  console.log('API_BASE_URL:', API_BASE_URL);
+  
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${API_BASE_URL}/syllabus/upload`, {
-    method: "POST",
-    body: formData,
-    // No 'Content-Type' header needed; browser sets it correctly for FormData
-  });
+  // Log FormData (this is limited due to FormData's nature)
+  console.log('FormData created with file appended');
+  
+  try {
+    console.log(`Making fetch request to ${API_BASE_URL}/syllabus/upload`);
+    const response = await fetch(`${API_BASE_URL}/syllabus/upload`, {
+      method: "POST",
+      body: formData,
+      // No 'Content-Type' header needed; browser sets it correctly for FormData
+    });
+    
+    console.log('Fetch response received:', response.status, response.statusText);
 
-  if (!response.ok) {
-    // Attempt to parse error details from the backend response
-    let errorDetail = `HTTP error! Status: ${response.status}`;
-    try {
-      const errorData = await response.json();
-      errorDetail = errorData.detail || errorDetail; // FastAPI often uses 'detail' key
-    } catch (e) {
-      // Ignore if response is not JSON or empty
-      console.error("Could not parse error response body", e);
+    if (!response.ok) {
+      // Attempt to parse error details from the backend response
+      let errorDetail = `HTTP error! Status: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        errorDetail = errorData.detail || errorDetail; // FastAPI often uses 'detail' key
+      } catch (e) {
+        // Ignore if response is not JSON or empty
+        console.error("Could not parse error response body", e);
+      }
+      console.error("Syllabus upload failed:", errorDetail);
+      throw new Error(`Syllabus upload failed: ${errorDetail}`);
     }
-    console.error("Syllabus upload failed:", errorDetail);
-    throw new Error(`Syllabus upload failed: ${errorDetail}`);
-  }
 
-  // Check content type before parsing JSON
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.indexOf("application/json") !== -1) {
-    return (await response.json()) as SyllabusAnalysisResponse;
-  } else {
-    const textResponse = await response.text();
-    console.error("Received non-JSON response:", textResponse);
-    throw new Error("Received unexpected response format from server.");
+    // Check content type before parsing JSON
+    const contentType = response.headers.get("content-type");
+    console.log('Response content-type:', contentType);
+    
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      const data = await response.json();
+      console.log('Parsed JSON response:', data);
+      return data as SyllabusAnalysisResponse;
+    } else {
+      const textResponse = await response.text();
+      console.error("Received non-JSON response:", textResponse);
+      throw new Error("Received unexpected response format from server.");
+    }
+  } catch (error) {
+    console.error('Error in uploadSyllabus:', error);
+    throw error;
   }
 };
 

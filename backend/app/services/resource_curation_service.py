@@ -22,7 +22,7 @@ class ResourceCurationService:
         self.tavily_service = tavily_service
         try:
             self.llm = ChatGroq(
-                model="deepseek-r1-distill-llama-70b",
+                model="llama-3.3-70b-versatile",
                 api_key=settings.GROQ_API_KEY,
                 temperature=0.5, # Slightly lower temp for more focused curation
                 max_tokens=4000

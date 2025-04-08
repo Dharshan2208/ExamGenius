@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware import Middleware
+from fastapi.staticfiles import StaticFiles
 
 # Import routers
 from .api.routes import syllabus, resources, study_plans
-
-app = FastAPI(title="ExamGenius API", version="0.1.0")
 
 # CORS Configuration
 origins = [
@@ -13,13 +13,26 @@ origins = [
     "https://examgenius-frontend.onrender.com", # Your Render frontend URL
 ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"], # Allow all methods (GET, POST, etc.)
-    allow_headers=["*"], # Allow all headers
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+        max_age=600,
+    )
+]
+
+app = FastAPI(
+    title="ExamGenius API", 
+    version="0.1.0",
+    middleware=middleware
 )
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def read_root():
